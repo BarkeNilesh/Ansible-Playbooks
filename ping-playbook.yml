@@ -1,0 +1,7 @@
+---
+- name: To Ping the server
+  hosts: all
+  tasks:
+    - name: Ping the target server
+      ping:
+  
