@@ -1,0 +1,10 @@
+---
+
+- name: Copy file from Ansible server to remote server
+  hosts: all
+  become: yes
+  tasks:
+    - name: Copy Script
+      ansible.builtin.copy:
+        src: /home/ubuntu/hostname.sh  
+        dest: /home/ubuntu/Scripts
