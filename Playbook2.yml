@@ -9,7 +9,7 @@
   tasks:
     - name: Ensure the user exists
       ansible.builtin.user:
-        name: {{ username }}
+        name: "{{ username }}"
         state: present
         shell: /bin/bash
         home: /home/{{ username }}
