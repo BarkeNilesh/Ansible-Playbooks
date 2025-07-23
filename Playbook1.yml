@@ -1,0 +1,22 @@
+# Install and Start Apache Web Server (Ubuntu)
+
+---
+- name: Install Apache Web Server
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: Install Apache
+      apt:
+        name: apache2
+        state: present
+        update_cache: yes
+
+        # update_cache: yes = ensures the package index is updated before installation // Just like "sudo apt-get update"
+
+    - name: Ensure Apache is running
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+
+...
