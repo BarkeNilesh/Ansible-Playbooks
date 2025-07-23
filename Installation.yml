@@ -1,0 +1,34 @@
+---
+# Installation of Git
+- name: "Installation of Git"
+  hosts: locahost
+  become: yes
+  tasks:
+    - name: "Installing Git"
+      yum: 
+        name: Git
+        state: present
+
+
+
+
+# Installation of java
+- name: "Installation of Java"
+  hosts: locahost
+  become: yes
+  tasks:
+    - name: "Installing Java (OpenJDK)"
+      yum:
+        name: java-1.8.0-openjdk
+        state: present
+
+
+# Installation of Maven
+- name: "Installation of Maven"
+  hosts: locahost
+  become: yes
+  tasks:
+    - name: "Installing Maven"
+      yum:
+        name: maven
+        state: present
