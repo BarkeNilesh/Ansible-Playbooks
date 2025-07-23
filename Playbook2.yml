@@ -1,0 +1,25 @@
+# Create a User with SSH Key
+
+---
+- name: Create a User with SSH Key
+  hosts: localhost
+  become: yes
+  vars:
+    username: Nilesh
+  tasks:
+    - name: Ensure the user exists
+      ansible.builtin.user:
+        name: {{ username }}
+        state: present
+        shell: /bin/bash
+        home: /home/{{ username }}
+
+
+    - name: Create SSH directory
+      ansible.posix.authorized_key:
+        user: {{ username }}
+        state: present
+        key: "{{ lookup('file', '/id_rsa.pub') }}"
+        managed_directory: true
+
+...
