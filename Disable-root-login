@@ -1,1 +1,50 @@
 #Task is to disable direct SSH root login on all servers. (Inventory file)
+---
+- name: Disable direct root SSH login on app servers
+  hosts: appservers
+  become: true
+  vars:
+    ssh_service_name: "{{ 'ssh' if ansible_facts['os_family'] == 'Debian' else 'sshd' }}"
+  tasks:
+    - name: Backup sshd_config once
+      copy:
+        src: /etc/ssh/sshd_config
+        dest: "/etc/ssh/sshd_config.bak.{{ ansible_date_time.date }}"
+        remote_src: true
+      register: backup_result
+      ignore_errors: true
+
+    - name: Ensure PermitRootLogin is set to no before any Match blocks
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^[#\s]*PermitRootLogin\s+.*'
+        line: 'PermitRootLogin no'
+        insertafter: '^#\s*Authentication'
+        insertbefore: '^Match '
+        create: no
+        backrefs: false
+
+    - name: If directive missing entirely, append at end
+      blockinfile:
+        path: /etc/ssh/sshd_config
+        marker: "# {mark} ANSIBLE MANAGED BLOCK - root login hardening"
+        block: |
+          PermitRootLogin no
+      when: "'PermitRootLogin' not in lookup('file', '/etc/ssh/sshd_config')"
+      ignore_errors: true  # fallback if lookup not permitted
+
+    - name: Validate sshd configuration
+      command: sshd -t
+      register: sshd_check
+      changed_when: false
+
+    - name: Fail if sshd config invalid
+      fail:
+        msg: "sshd config test failed: {{ sshd_check.stderr | default('') }}"
+      when: sshd_check.rc != 0
+
+    - name: Restart SSH service
+      service:
+        name: "{{ ssh_service_name }}"
+        state: restarted
+        enabled: true
